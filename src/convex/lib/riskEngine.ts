@@ -198,9 +198,13 @@ export function scoreTransaction(context: ScoreContext): ScoreResult {
   };
 
   if (riskCategory === "DIAMOND_SAFE") {
-    // A safe payment should explain WHY it is safe, not list network trivia.
+    // A safe payment should explain WHY it is safe, not list network trivia —
+    // but if low-severity rules did fire we must say so instead of claiming
+    // that nothing at all triggered.
     push(
-      "All deterministic fraud rules were evaluated and none crossed its trigger threshold.",
+      ruleScore >= 15 && deterministic.length > 0
+        ? `${deterministic.length} low-severity signal${deterministic.length === 1 ? "" : "s"} fired (rule risk ${Math.round(ruleScore)}/100) but none reached a blocking threshold — safe to proceed.`
+        : "All deterministic fraud rules were evaluated and none crossed its trigger threshold.",
     );
     if (context.qr && context.qr.used && context.qr.signatureValid) {
       push(

@@ -1,11 +1,12 @@
 /* DO NOT CHANGE */
+/* Optional web fonts — must stay the first @import so the browser honours it.
+   If the machine is offline the system stacks in --font-sans / --font-mono take
+   over automatically, so the prototype still renders correctly. */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap");
+
 @import "tailwindcss";
 @import "tw-animate-css";
 @custom-variant dark (&:is(.dark *));
-
-/* Optional web fonts. If the machine is offline the system stacks below take
-   over automatically, so the prototype still renders correctly. */
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap");
 
 /* DO NOT CHANGE */
 @theme inline {

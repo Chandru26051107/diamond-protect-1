@@ -28,8 +28,9 @@ Open `/` (landing page).
 > independent layers, one explainable score, and a clear verdict: proceed, verify, or do
 > not pay."
 
-Point at the live ledger card: **8,000 synthetic transactions**, **loss prevented**,
-**57 mule accounts**. Say: *"all of this is generated on this machine — no bank data."*
+Point at the live ledger card: **8,000 synthetic transactions**, **fraud loss prevented**
+and **50+ suspected mule accounts**. Say: *"all of this is generated on this machine — no
+bank data."*
 
 ## 0:45 – 2:00 · Analyst overview (the main user)
 
@@ -50,7 +51,9 @@ Talk through, quickly:
 
 Go to **Payment Shield → Diamond QR Verify**.
 
-1. Filter to **Active**, pick a QR. Show the payload: merchant, VPA, amount, nonce, version, signature.
+1. Filter to **Active**, pick a QR (seeded codes are minted with a 24-hour validity window,
+   so any Active one verifies green). Show the payload: merchant, VPA, amount, nonce,
+   version, signature.
 2. Press **Verify QR** → green **Verified QR**, 9/9 checks with the HMAC signature passing.
 3. Now attack it: choose **Inflate the amount** in *Simulate a QR attack* → **Tamper this QR**
    → **Verify QR** again.
@@ -96,8 +99,14 @@ Tab 2 → **Payment Shield → Pay & Score**.
 
 Back to **Pay & Score**. Press **Reset demo data** first if you tampered with QRs (10 s).
 
-- Open **Preloaded demo scenarios → Scenario 1 · Safe Payment → Open**.
-- Or score manually: verified merchant + small amount + a normal device/location path.
+- Open **Preloaded demo scenarios → Scenario 1 · Safe Payment → Open** — that result page
+  is a real seeded transaction the engine scored Diamond Safe with a verified QR.
+- Or score it live: click a chip under **Saved customer profiles** (this loads the payer's
+  own device, city and a beneficiary it has paid before), keep the amount small, attach a
+  merchant QR, press **Check payment safety** → **score ≈ 95, Diamond Safe, Proceed**.
+  Then change Device ID to anything else and rescore → **77, Diamond Caution**, with
+  *"Payment originated from a device this account has not used before"*. Same engine, two
+  outcomes — that contrast is the whole product.
 - Show **Diamond Safe / Proceed Safely**, and the reasons panel now explains *why it is safe*:
   rules evaluated and passed, QR verified, beneficiary not in any mule cluster, behaviour
   matches baseline.

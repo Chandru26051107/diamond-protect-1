@@ -186,7 +186,12 @@ export default function RuleControl() {
             <Sliders className="size-3" /> {Object.values(toggles).filter(Boolean).length} rules enabled
           </Chip>
           <Chip tone="neutral">
-            updated {settings?.config ? formatDateTime(Date.now()) : "—"}
+            updated{" "}
+            {settings?.updatedAt
+              ? formatDateTime(settings.updatedAt)
+              : settings?.model?.trainedAt
+                ? formatDateTime(settings.model.trainedAt)
+                : "—"}
           </Chip>
         </>
       }

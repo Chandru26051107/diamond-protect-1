@@ -332,9 +332,9 @@ Example — `scoreTransaction` on a mule beneficiary:
   "diamondTrustScore": 3,
   "riskCategory": "DIAMOND_ALERT",
   "decision": "DO_NOT_PAY",
-  "ruleRisk": 100,
+  "ruleScore": 100,
   "mlRisk": 99,
-  "graphRisk": 85,
+  "graphScore": 85,
   "reasons": [
     "Beneficiary matches the MuleNet money-mule behaviour profile.",
     "Beneficiary was added 10 minutes before this payment.",
@@ -355,7 +355,7 @@ from the Command Centre overview):
 | --- | --- | --- | --- |
 | 1 | **Safe payment** | Verified merchant, valid signed QR, small amount | **Diamond Safe — Proceed Safely** |
 | 2 | **Fake QR attack** | QR merchant mismatch / edited payload, unknown beneficiary | **Diamond Alert — Do Not Pay** |
-| 3 | **Mule account payment** | Beneficiary fans in from many accounts and forwards ~86% within minutes | **Diamond Alert — Do Not Pay**, visible as a cluster in MuleNet |
+| 3 | **Mule account payment** | Beneficiary fans in from many accounts and forwards ~76% within ~96 seconds | **Diamond Alert — Do Not Pay**, visible as a cluster in MuleNet |
 | 4 | **User fraud report** | User reports a transaction from the Safety Centre | Case appears as **NEW** in the Case Manager; analyst blocks the beneficiary; audit log records everything |
 
 The full stage-by-stage run sheet is in [`docs/demo_script.md`](docs/demo_script.md).

@@ -160,7 +160,6 @@ export const seedDemoData = action({
         return { ok: false, skipped: true, message: claim.message, stats: null };
       }
 
-      const existingSettings = await ctx.runQuery(internal.demoSeed.settingsExists, {});
       const config: RuleConfig = DEFAULT_CONFIG;
 
       const dataset = generateDataset(config, started);
@@ -188,16 +187,18 @@ export const seedDemoData = action({
           trainingLog: dataset.model.trainingLog,
         },
       ]);
-      if (!existingSettings) {
-        await insertAll(ctx, "settings", [
-          {
-            key: "global",
-            ...DEFAULT_CONFIG,
-            updatedAt: Date.now(),
-            updatedBy: "system",
-          },
-        ]);
-      }
+      // "Reset demo data" also restores the shipped rule configuration, so a
+      // judge always starts from the same deterministic defaults even if the
+      // analyst tuned thresholds earlier in the session.
+      await ctx.runMutation(internal.demoSeed.wipeTable, { table: "settings" });
+      await insertAll(ctx, "settings", [
+        {
+          key: "global",
+          ...DEFAULT_CONFIG,
+          updatedAt: started,
+          updatedBy: "system",
+        },
+      ]);
 
       const elapsed = Date.now() - started;
       await ctx.runMutation(internal.demoSeed.releaseSeed, {

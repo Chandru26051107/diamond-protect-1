@@ -233,7 +233,7 @@ export default function Landing() {
                 <div className="brut-flat bg-[#F4F1EA] p-2 text-[#0A0A0A]">
                   <p className="dp-label opacity-60">Mule accounts</p>
                   <p className="dp-tabular mt-1 text-lg font-black">
-                    {stats ? formatCount(stats.suspectedMuleAccounts) : "57"}
+                    {stats ? formatCount(stats.suspectedMuleAccounts) : "50+"}
                   </p>
                 </div>
               </div>

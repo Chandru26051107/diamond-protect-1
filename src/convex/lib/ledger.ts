@@ -463,6 +463,14 @@ export function planTransactions(
     });
   }
 
+  // Never schedule a payment in the future. Today's plan hours are drawn from
+  // the whole IST day, so a run at 07:00 would otherwise mint payments dated
+  // 22:00 tonight — which would then sort above every live score in the feed,
+  // the history list and the audit trail.
+  for (const plan of plans) {
+    if (plan.ts > now) plan.ts = now - randInt(rng, 0, DAY);
+  }
+
   return plans.sort((a, b) => a.ts - b.ts);
 }
 
@@ -498,10 +506,19 @@ export function buildLedger(
 
   const qrVerdictCache = new Map<string, ReturnType<typeof verifyQrPayload>>();
   const verifyQrAt = (qr: QrDoc, at: number) => {
-    const key = `${qr.qrId}:${at > qr.expiresAt ? "expired" : "live"}`;
+    const state =
+      qr.status === "REVOKED"
+        ? "revoked"
+        : at > qr.expiresAt
+          ? "expired"
+          : "live";
+    const key = `${qr.qrId}:${state}`;
     const cached = qrVerdictCache.get(key);
     if (cached) return cached;
-    const verdict = verifyQrPayload(qr.payload, qr.signature, registry, at);
+    const verdict = verifyQrPayload(qr.payload, qr.signature, registry, at, {
+      status: qr.status,
+      qrId: qr.qrId,
+    });
     qrVerdictCache.set(key, verdict);
     return verdict;
   };
@@ -815,7 +832,9 @@ export function buildFraudCases(
           : txn.diamondTrustScore < 65
             ? "MEDIUM"
             : "LOW";
-    const createdAt = txn.timestamp + randInt(rng, 30000, 900000);
+    // A case can only exist once the payment did — never in the future.
+    const cap = (value: number) => Math.min(value, now);
+    const createdAt = cap(txn.timestamp + randInt(rng, 30000, 900000));
     const assignedTo = status === "NEW" ? undefined : ANALYSTS[index % ANALYSTS.length];
     const caseId = `CASE-${pad(index + 1, 4)}`;
 
@@ -829,7 +848,7 @@ export function buildFraudCases(
     ];
     if (assignedTo) {
       timeline.push({
-        at: createdAt + randInt(rng, 60000, 3600000),
+        at: cap(createdAt + randInt(rng, 60000, 3600000)),
         actor: "system",
         action: "ASSIGNED",
         note: `Auto-assigned to ${assignedTo}.`,
@@ -837,7 +856,7 @@ export function buildFraudCases(
     }
     if (status === "ESCALATED") {
       timeline.push({
-        at: createdAt + randInt(rng, 3600000, 2 * DAY),
+        at: cap(createdAt + randInt(rng, 3600000, 2 * DAY)),
         actor: assignedTo ?? "system",
         action: "ESCALATED",
         note: "Escalated to the bank fraud cell for beneficiary action.",
@@ -845,7 +864,7 @@ export function buildFraudCases(
     }
     if (status === "RESOLVED" || status === "FALSE_POSITIVE") {
       timeline.push({
-        at: createdAt + randInt(rng, 2 * 3600000, 3 * DAY),
+        at: cap(createdAt + randInt(rng, 2 * 3600000, 3 * DAY)),
         actor: assignedTo ?? "system",
         action: status === "RESOLVED" ? "RESOLVED" : "FALSE_POSITIVE",
         note:

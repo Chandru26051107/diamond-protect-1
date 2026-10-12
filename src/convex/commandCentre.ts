@@ -46,6 +46,18 @@ export const metrics = query({
         .take(clamp(args.feedSize ?? 24, 5, 60));
       const caseRows = await ctx.db.query("fraudCases").take(200);
 
+      // Alerts must never render as an empty panel: look at a wider recent
+      // window and pick the genuinely high-risk payments, instead of relying
+      // on whichever rows happened to be scored most recently (which are
+      // usually normal ones).
+      const alertRows = (await ctx.db
+        .query("transactions")
+        .withIndex("by_timestamp")
+        .order("desc")
+        .take(300))
+        .filter((txn) => txn.diamondTrustScore < 55)
+        .slice(0, 8);
+
       const liveActiveCases = caseRows.filter(
         (entry) =>
           entry.status === "NEW" ||
@@ -81,10 +93,7 @@ export const metrics = query({
           isFraudLabel: txn.isFraudLabel,
           topReason: txn.reasons[0] ?? "",
         })),
-        alerts: feed
-          .filter((txn) => txn.diamondTrustScore < 55)
-          .slice(0, 8)
-          .map((txn) => ({
+        alerts: alertRows.map((txn) => ({
             txnId: txn.txnId,
             severity: txn.diamondTrustScore < 25 ? "CRITICAL" : "HIGH",
             title: `${txn.beneficiaryName} · ₹${txn.amount}`,
@@ -347,6 +356,8 @@ export const settings = query({
         ok: true,
         config,
         catalogue: RULE_CATALOGUE,
+        updatedAt: row?.updatedAt ?? null,
+        updatedBy: row?.updatedBy ?? null,
         model: model
           ? {
               modelType: model.modelType,
@@ -361,7 +372,7 @@ export const settings = query({
           : null,
       };
     } catch {
-      return { ok: false, config: DEFAULT_CONFIG, catalogue: RULE_CATALOGUE, model: null };
+      return { ok: false, config: DEFAULT_CONFIG, catalogue: RULE_CATALOGUE, model: null, updatedAt: null, updatedBy: null };
     }
   },
 });

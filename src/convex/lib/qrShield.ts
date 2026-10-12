@@ -96,6 +96,16 @@ function fail(
 }
 
 /**
+ * Registry state of the exact QR code being scanned (as opposed to the
+ * merchant credential). A code can be revoked on its own, e.g. when a merchant
+ * reports a stolen sticker batch.
+ */
+export type QrRegistryState = {
+  status?: string | null;
+  qrId?: string | null;
+};
+
+/**
  * Verifies a scanned QR payload against the merchant registry.
  * Never throws: malformed input always comes back as a FAKE_TAMPERED verdict.
  */
@@ -104,6 +114,7 @@ export function verifyQrPayload(
   signature: string | null | undefined,
   merchants: MerchantRecord[],
   now: number,
+  qrState?: QrRegistryState | null,
 ): QrVerificationResult {
   const checks: QrCheck[] = [];
 
@@ -215,12 +226,16 @@ export function verifyQrPayload(
       : `Merchant ${merchant!.merchantName} found in registry.`,
   });
 
-  const revoked = merchant ? merchant.status === "REVOKED" : false;
+  const merchantRevoked = merchant ? merchant.status === "REVOKED" : false;
+  const qrRevoked = qrState?.status === "REVOKED";
+  const revoked = merchantRevoked || qrRevoked;
   checks.push({
     name: "QR not revoked",
     passed: !revoked,
     detail: revoked
-      ? "QR / merchant credential was revoked by the registry."
+      ? qrRevoked
+        ? `QR ${qrState?.qrId ?? "code"} was revoked by the merchant registry. Do not pay.`
+        : "QR / merchant credential was revoked by the registry."
       : "Merchant credential is active.",
   });
 

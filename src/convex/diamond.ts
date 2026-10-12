@@ -537,7 +537,13 @@ export const scoreTransaction = mutation({
         merchantName: string | null;
         registeredMerchantName: string | null;
       };
-      let storedQr: { _id: never; payload: string; signature: string; qrId: string } | null = null;
+      let storedQr: {
+        _id: never;
+        payload: string;
+        signature: string;
+        qrId: string;
+        status: string;
+      } | null = null;
       let qrStatus: "VERIFIED" | "CAUTION" | "FAKE_TAMPERED" | "NOT_USED" = "NOT_USED";
 
       if (args.qrId || args.qrPayload) {
@@ -554,12 +560,21 @@ export const scoreTransaction = mutation({
             .withIndex("by_qrId", (q) => q.eq("qrId", args.qrId!))
             .unique();
           storedQr = stored
-            ? { _id: stored._id as never, payload: stored.payload, signature: stored.signature, qrId: stored.qrId }
+            ? {
+                _id: stored._id as never,
+                payload: stored.payload,
+                signature: stored.signature,
+                qrId: stored.qrId,
+                status: stored.status,
+              }
             : null;
         }
         const payload = args.qrPayload ?? storedQr?.payload ?? "";
         const signature = args.qrSignature ?? storedQr?.signature ?? "";
-        const verdict = verifyQrPayload(payload, signature, registry, timestamp);
+        const verdict = verifyQrPayload(payload, signature, registry, timestamp, {
+          status: storedQr?.status ?? null,
+          qrId: storedQr?.qrId ?? null,
+        });
         qrStatus = verdict.status;
         qrVerdictInput = {
           used: true,
@@ -573,7 +588,11 @@ export const scoreTransaction = mutation({
           merchantName: verdict.payload ? String(verdict.payload.merchant_name) : null,
           registeredMerchantName: verdict.registeredMerchantName,
         };
-        if (verdict.status === "FAKE_TAMPERED" && storedQr) {
+        if (
+          verdict.status === "FAKE_TAMPERED" &&
+          storedQr &&
+          storedQr.status !== "REVOKED"
+        ) {
           await ctx.db.patch(storedQr._id, { status: "TAMPERED", isTampered: true });
         }
       }
@@ -921,9 +940,18 @@ export const verifyQr = mutation({
         : null;
       const payload = args.payload ?? qrRow?.payload ?? "";
       const signature = args.signature ?? qrRow?.signature ?? "";
-      const verdict = verifyQrPayload(payload, signature, registry, now);
+      const verdict = verifyQrPayload(payload, signature, registry, now, {
+        status: qrRow?.status ?? null,
+        qrId: qrRow?.qrId ?? null,
+      });
 
-      if (qrRow && verdict.status === "FAKE_TAMPERED" && qrRow.status !== "TAMPERED") {
+      const qrRevoked = qrRow?.status === "REVOKED";
+      if (
+        qrRow &&
+        verdict.status === "FAKE_TAMPERED" &&
+        !qrRevoked &&
+        qrRow.status !== "TAMPERED"
+      ) {
         await ctx.db.patch(qrRow._id, { status: "TAMPERED", isTampered: true });
         await ctx.db.insert("auditLogs", {
           logId: `LOG-${nonceFor(["verify", qrRow.qrId, now]).slice(0, 10)}`,
