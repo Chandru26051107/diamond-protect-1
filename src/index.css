@@ -1,0 +1,237 @@
+/* DO NOT CHANGE */
+@import "tailwindcss";
+@import "tw-animate-css";
+@custom-variant dark (&:is(.dark *));
+
+/* Optional web fonts. If the machine is offline the system stacks below take
+   over automatically, so the prototype still renders correctly. */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap");
+
+/* DO NOT CHANGE */
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+/* ==========================================================================
+   DIAMOND-PROTECT :: Neobrutalism Minimalism
+   Square corners, heavy black borders, flat colour blocking, hard offset
+   shadows. Controlled contrast, no gradients, no clutter.
+   ========================================================================== */
+@theme {
+  --font-sans:
+    "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --font-mono:
+    "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas,
+    "Liberation Mono", monospace;
+
+  /* Square corners everywhere. */
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+
+  /* Brand palette (flat, high contrast). */
+  --color-ink: #0a0a0a;
+  --color-paper: #f4f1ea;
+  --color-card: #ffffff;
+  --color-cyan: #22d3ee;
+  --color-diamond: #7dd3fc;
+  --color-safe: #10b981;
+  --color-caution: #f59e0b;
+  --color-alert: #ef4444;
+  --color-sun: #fde047;
+  --color-slate-deep: #1e293b;
+}
+
+:root {
+  --radius: 0rem;
+
+  --background: #f4f1ea;
+  --foreground: #0a0a0a;
+  --card: #ffffff;
+  --card-foreground: #0a0a0a;
+  --popover: #ffffff;
+  --popover-foreground: #0a0a0a;
+  --primary: #0a0a0a;
+  --primary-foreground: #f4f1ea;
+  --secondary: #e6e1d5;
+  --secondary-foreground: #0a0a0a;
+  --muted: #e6e1d5;
+  --muted-foreground: #57534e;
+  --accent: #22d3ee;
+  --accent-foreground: #0a0a0a;
+  --destructive: #ef4444;
+  --border: #0a0a0a;
+  --input: #0a0a0a;
+  --ring: #0a0a0a;
+  --chart-1: #0a0a0a;
+  --chart-2: #22d3ee;
+  --chart-3: #10b981;
+  --chart-4: #f59e0b;
+  --chart-5: #ef4444;
+  --sidebar: #f4f1ea;
+  --sidebar-foreground: #0a0a0a;
+  --sidebar-primary: #0a0a0a;
+  --sidebar-primary-foreground: #f4f1ea;
+  --sidebar-accent: #22d3ee;
+  --sidebar-accent-foreground: #0a0a0a;
+  --sidebar-border: #0a0a0a;
+  --sidebar-ring: #0a0a0a;
+}
+
+.dark {
+  --background: #0a0a0a;
+  --foreground: #f4f1ea;
+  --card: #16161a;
+  --card-foreground: #f4f1ea;
+  --popover: #16161a;
+  --popover-foreground: #f4f1ea;
+  --primary: #f4f1ea;
+  --primary-foreground: #0a0a0a;
+  --secondary: #26262b;
+  --secondary-foreground: #f4f1ea;
+  --muted: #26262b;
+  --muted-foreground: #a8a29e;
+  --accent: #22d3ee;
+  --accent-foreground: #0a0a0a;
+  --destructive: #ef4444;
+  --border: #f4f1ea;
+  --input: #f4f1ea;
+  --ring: #22d3ee;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+    font-feature-settings: "cv11", "ss01";
+    letter-spacing: -0.011em;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-weight: 800;
+    letter-spacing: -0.03em;
+  }
+  ::selection {
+    background: #22d3ee;
+    color: #0a0a0a;
+  }
+  button:not([disabled]),
+  [role="button"]:not([disabled]) {
+    cursor: pointer;
+  }
+  /* Square scrollbars that match the theme. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #0a0a0a transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  *::-webkit-scrollbar-thumb {
+    background: #0a0a0a;
+    border: 2px solid #f4f1ea;
+  }
+}
+
+@layer utilities {
+  /* Heavy outline + hard offset shadow: the core neobrutalist surface. */
+  .brut {
+    border: 3px solid #0a0a0a;
+    box-shadow: 5px 5px 0 0 #0a0a0a;
+  }
+  .brut-sm {
+    border: 2px solid #0a0a0a;
+    box-shadow: 3px 3px 0 0 #0a0a0a;
+  }
+  .brut-xs {
+    border: 2px solid #0a0a0a;
+    box-shadow: 2px 2px 0 0 #0a0a0a;
+  }
+  .brut-flat {
+    border: 2px solid #0a0a0a;
+  }
+  .brut-hover {
+    transition:
+      transform 120ms ease,
+      box-shadow 120ms ease;
+  }
+  .brut-hover:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 7px 7px 0 0 #0a0a0a;
+  }
+  .brut-press:active {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 0 #0a0a0a;
+  }
+  /* Subtle engineering blueprint grid used behind hero + dashboards. */
+  .dp-grid {
+    background-image:
+      linear-gradient(to right, rgba(10, 10, 10, 0.07) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(10, 10, 10, 0.07) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+  .dp-mono {
+    font-family: var(--font-mono);
+    font-variant-ligatures: none;
+    letter-spacing: -0.02em;
+  }
+  .dp-label {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .dp-tabular {
+    font-variant-numeric: tabular-nums;
+    font-family: var(--font-mono);
+  }
+  .dp-hide-scroll::-webkit-scrollbar {
+    display: none;
+  }
+}
